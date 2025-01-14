@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roll Of The Night</title>
+    <title>Lifetime Match Dice Game</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -42,13 +42,16 @@
         }
         .tables {
             display: flex;
+            flex-wrap: wrap;
             justify-content: center;
             gap: 20px;
             margin-top: 20px;
         }
         table {
-            width: auto;
+            width: 100%;
+            max-width: 300px;
             border-collapse: collapse;
+            margin: 0 auto;
         }
         th, td {
             border: 1px solid #ddd;
@@ -62,11 +65,29 @@
         td {
             text-align: center;
         }
+
+        @media (max-width: 600px) {
+            input, button {
+                width: 90%;
+                font-size: 14px;
+            }
+            .tab-button {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+            .tables {
+                flex-direction: column;
+                gap: 10px;
+            }
+            table {
+                width: 90%;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Roll Of The Night</h1>
+        <h1>Lifetime Match Dice Game</h1>
         <div id="setup">
             <p>Enter players for a lifetime match:</p>
             <input type="text" id="playerName" placeholder="Player Name" />
@@ -93,7 +114,7 @@
                             <thead>
                                 <tr>
                                     <th>Guesser</th>
-                                    <th>Wins</th>
+                                    <th>Matches</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -131,7 +152,7 @@
             const name = document.getElementById('playerName').value;
             if (name) {
                 players.push(name);
-                stats[name] = { guesses: Array(6).fill(0), rolls: Array(6).fill(0), wins: 0 };
+                stats[name] = { guesses: Array(6).fill(0), rolls: Array(6).fill(0), matches: 0 };
                 document.getElementById('playerList').innerHTML += `<li>${name}</li>`;
                 document.getElementById('playerName').value = '';
             }
@@ -163,7 +184,7 @@
                 });
 
                 if (guessInt === rollInt) {
-                    stats[players[currentGuesserIndex]].wins++;
+                    stats[players[currentGuesserIndex]].matches++;
                 }
 
                 stats[players[currentGuesserIndex]].guesses[guessInt - 1]++;
@@ -201,7 +222,7 @@
             players.forEach(player => {
                 const row = `<tr>
                     <td>${player}</td>
-                    <td>${stats[player].wins}</td>
+                    <td>${stats[player].matches}</td>
                 </tr>`;
                 matchTable.innerHTML += row;
             });
