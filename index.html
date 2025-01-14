@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roll Of The Night</title>
+    <title>Lifetime Match Dice Game</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -87,12 +87,13 @@
 </head>
 <body>
     <div class="container">
-        <h1>Roll Of The Night</h1>
+        <h1>Lifetime Match Dice Game</h1>
         <div id="setup">
             <p>Enter players for a lifetime match:</p>
             <input type="text" id="playerName" placeholder="Player Name" />
             <button onclick="addPlayer()">Add Player</button>
             <button onclick="startGame()">Start Game</button>
+            <button onclick="resetGame()">Reset Game</button>
             <ul id="playerList"></ul>
         </div>
         <div id="game" style="display: none;">
@@ -143,10 +144,26 @@
         </div>
     </div>
     <script>
-        let players = [];
-        let currentGuesserIndex = 0;
-        let history = [];
-        let stats = {};
+        let players = JSON.parse(localStorage.getItem('players')) || [];
+        let currentGuesserIndex = JSON.parse(localStorage.getItem('currentGuesserIndex')) || 0;
+        let history = JSON.parse(localStorage.getItem('history')) || [];
+        let stats = JSON.parse(localStorage.getItem('stats')) || {};
+
+        function saveGame() {
+            localStorage.setItem('players', JSON.stringify(players));
+            localStorage.setItem('currentGuesserIndex', JSON.stringify(currentGuesserIndex));
+            localStorage.setItem('history', JSON.stringify(history));
+            localStorage.setItem('stats', JSON.stringify(stats));
+        }
+
+        function resetGame() {
+            localStorage.clear();
+            players = [];
+            currentGuesserIndex = 0;
+            history = [];
+            stats = {};
+            location.reload();
+        }
 
         function addPlayer() {
             const name = document.getElementById('playerName').value;
@@ -155,6 +172,7 @@
                 stats[name] = { guesses: Array(6).fill(0), rolls: Array(6).fill(0), matches: 0 };
                 document.getElementById('playerList').innerHTML += `<li>${name}</li>`;
                 document.getElementById('playerName').value = '';
+                saveGame();
             }
         }
 
@@ -198,6 +216,7 @@
                 updateHistory();
                 updateMatchTable();
                 updatePlayerStats();
+                saveGame();
             }
         }
 
@@ -206,7 +225,7 @@
             historyTable.innerHTML = '';
             history.forEach(entry => {
                 const row = `<tr>
-                    <td>${entry.date.toLocaleDateString('en-US')}</td>
+                    <td>${new Date(entry.date).toLocaleDateString('en-US')}</td>
                     <td>${entry.guesser}</td>
                     <td>${entry.guess}</td>
                     <td>${entry.roll}</td>
@@ -267,6 +286,16 @@
 
             document.querySelector(`#${tabId}`).classList.add('active');
             document.querySelector(`[onclick="switchTab('${tabId}')"]`).classList.add('active');
+        }
+
+        // Load saved data if available
+        if (players.length > 0) {
+            document.getElementById('setup').style.display = 'none';
+            document.getElementById('game').style.display = 'block';
+            document.getElementById('currentGuesser').textContent = players[currentGuesserIndex];
+            updateHistory();
+            updateMatchTable();
+            updatePlayerStats();
         }
     </script>
 </body>
